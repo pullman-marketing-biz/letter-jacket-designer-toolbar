@@ -5,8 +5,8 @@ div
 </template>
 <script setup lang="ts">
 import { ref, provide } from 'vue'
-import Toolbar from './components/Toolbar.vue'
-import LoadingSpinner from './components/LoadingSpinner.vue'
+import Toolbar from '@/components/Toolbar.vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const loadingSpinnerVisible = ref(false)
 
