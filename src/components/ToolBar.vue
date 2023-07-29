@@ -27,7 +27,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Dialog from 'primevue/dialog'
 import { Directus } from '@directus/sdk'
-import { env } from '../../env.ts'
+import { env } from '@/env'
 
 const directus = new Directus(env.CMS_URL)
 const orders = reactive([])
@@ -39,7 +39,7 @@ const speedDialItems = reactive([
 ])
 const selectedOrderId = ref()
 
-const { showLoadingSpinner } = inject('loadingSpinner')
+const { showLoadingSpinner } = inject<any>('loadingSpinner')
 
 async function showDraftOrders() {
     ordersDialogVisible.value = true
@@ -74,7 +74,7 @@ async function deleteOrder(id: string) {
     try {
         showLoadingSpinner(true)
         await directus.items('Orders').deleteOne(id)
-        const index = orders.findIndex(o => o.id == id)
+        const index = orders.findIndex((o: any) => o.id == id)
         orders.splice(index, 1)
         Swal.fire({
             title: 'Order Deletion',
