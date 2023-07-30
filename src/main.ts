@@ -11,4 +11,4 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(PrimeVue)
 
-app.mount('#app')
+app.mount('#toolbar-app')
