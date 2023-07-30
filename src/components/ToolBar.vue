@@ -1,7 +1,7 @@
 <template lang='pug'>
 .letter-jacket-designer-toolbar
     SpeedDial(:model="speedDialItems" direction="up", buttonClass="app-button")
-    Dialog(v-model:visible="ordersDialogVisible", :draggable="false", header="Jacket Builder History", :style="{ width: '1000px' }")
+    Dialog(v-model:visible="ordersDialogVisible", :draggable="false", modal, header="Jacket Builder History", :style="{ width: '1000px' }")
         DataTable(:value="orders")
             Column(field="name", header="Name")
             Column(field="email", header="Email")
@@ -13,7 +13,7 @@
                         i.pi.pi-upload.action(@click="restoreOrder(props.data.id)", title="Restore")
                         i.pi.pi-trash.action(@click="deleteConfirmation(props.data.id)", title="Delete")
         p.info *The orders above are the ones that have been started on this computer but have not been completed.
-    Dialog(v-model:visible="previewDialogVisible", :draggable="false", header="Order Preview")
+    Dialog(v-model:visible="previewDialogVisible", :draggable="false", modal, header="Order Preview")
         iframe#previewFrame(
             :src='env.APP_URL + "/index.php?readonly&ljd_dsgn=" + selectedOrderId',
             :style="{ width: '85vw', height: 'calc(85vh - 80px)' }"
