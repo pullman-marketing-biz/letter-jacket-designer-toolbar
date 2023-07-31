@@ -5,7 +5,12 @@
         DataTable(:value="orders")
             Column(field="name", header="Name")
             Column(field="email", header="Email")
-            Column(field="date_created", header="Created At")
+            Column(header="Created At")
+                template(#body="props")
+                    | {{ format(new Date(props.data.date_created), 'MM/dd/yyyy hh:mm bbb') }}
+            Column(header="Updated At")
+                template(#body="props")
+                    | {{ format(new Date(props.data.date_updated), 'MM/dd/yyyy hh:mm bbb') }}
             Column(header="Action")
                 template(#body="props")
                     .actions
@@ -15,7 +20,8 @@
         p.info *The orders above are the ones that have been started on this computer but have not been completed.
     Dialog(v-model:visible="previewDialogVisible", :draggable="false", modal, header="Order Preview")
         iframe#previewFrame(
-            :src='env.APP_URL + "/index.php?readonly&ljd_dsgn=" + selectedOrderId',
+            v-if='previewDialogVisible',
+            :src='appUrl + "/index.php?readonly&ljd_dsgn=" + selectedOrderId',
             :style="{ width: '85vw', height: 'calc(85vh - 80px)' }"
         )
 </template>
@@ -27,9 +33,11 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Dialog from 'primevue/dialog'
 import { Directus } from '@directus/sdk'
-import { env } from '@/env'
+import format from 'date-fns/format'
 
-const directus = new Directus(env.CMS_URL)
+const cmsUrl = inject<string>('cmsUrl')
+const appUrl = inject<string>('appUrl')
+const directus = new Directus(cmsUrl)
 const orders = reactive([])
 const ordersDialogVisible = ref(false)
 const previewDialogVisible = ref(false)
@@ -107,7 +115,7 @@ async function restoreOrder(id: string) {
         timer: 3000,
         timerProgressBar: true
     })
-    .then(() => location.href = env.APP_URL + "/index.php?ljd_dsgn=" + id)
+    .then(() => location.href = appUrl + "/index.php?ljd_dsgn=" + id)
 }
 
 async function previewOrder(id: string) {
