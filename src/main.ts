@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
+import Tooltip from 'primevue/tooltip'
 import App from './App.vue'
 import VueCookies from 'vue-cookies'
 
@@ -13,6 +14,7 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(PrimeVue)
 app.use(VueCookies, {})
+app.directive('tooltip', Tooltip)
 
 fetch('config.json')
     .then(async (data: Response) => {
@@ -22,6 +24,7 @@ fetch('config.json')
         app.mount('#toolbar-app')
     })
     .catch((e) => {
+        console.error(e)
         console.error(
             'Something went wrong fetching the required env variables to run this application. ' +
                 'Please, make sure to provide a config.json file with the cmsUrl and appUrl variables'
