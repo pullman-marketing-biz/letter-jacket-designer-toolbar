@@ -1,8 +1,8 @@
 <template lang='pug'>
 .letter-jacket-designer-toolbar
     SpeedDial(:model="speedDialItems" direction="up", buttonClass="app-button")
-    Dialog(v-model:visible="ordersDialogVisible", :draggable="false", modal, header="Jacket Builder History", :style="{ width: '1000px' }")
-        DataTable(:value="orders")
+    Dialog(v-model:visible="jacketsDialogVisible", :draggable="false", modal, header="Jacket Builder History", :style="{ width: '1000px' }")
+        DataTable(:value="jackets")
             Column(field="name", header="Name")
             Column(field="email", header="Email")
             Column(header="Created At")
@@ -14,11 +14,15 @@
             Column(header="Action")
                 template(#body="props")
                     .actions
-                        i.pi.pi-eye.action(@click="previewOrder(props.data.id)", title="Preview")
-                        i.pi.pi-upload.action(@click="restoreOrder(props.data.id)", title="Restore")
+                        i.pi.pi-eye.action(@click="previewJacket(props.data.id)", title="Preview")
+                        i.pi.pi-upload.action(@click="restoreJacket(props.data.id)", title="Restore")
                         i.pi.pi-trash.action(@click="deleteConfirmation(props.data.id)", title="Delete")
-        p.info *The orders above are the ones that have been started on this computer but have not been completed.
-    Dialog(v-model:visible="previewDialogVisible", :draggable="false", modal, header="Order Preview")
+        p.info *The jackets above are the ones that have been started on this computer but have not been completed.
+    Dialog(v-model:visible="previewDialogVisible", :draggable="false", :closable="false", modal)
+        template(#header)
+            span.p-dialog-title Jacket Preview
+            button.p-dialog-header-icon.p-dialog-header-close.p-link(@click="closePreviewDialog")
+                i.pi.pi-times
         iframe#previewFrame(
             v-if='previewDialogVisible',
             :src='appUrl + "/index.php?readonly&ljd_dsgn=" + selectedOrderId',
@@ -34,32 +38,42 @@ import Column from 'primevue/column'
 import Dialog from 'primevue/dialog'
 import { Directus } from '@directus/sdk'
 import format from 'date-fns/format'
+import {VueCookies} from "vue-cookies";
 
 const cmsUrl = inject<string>('cmsUrl')
 const appUrl = inject<string>('appUrl')
+const cookies = inject<VueCookies>('$cookies')
 const directus = new Directus(cmsUrl)
-const orders = reactive([])
-const ordersDialogVisible = ref(false)
+const jackets = reactive([])
+const jacketsDialogVisible = ref(false)
 const previewDialogVisible = ref(false)
 const speedDialItems = reactive([
-    { label: 'Orders History', icon: 'pi pi-history', command: showDraftOrders },
+    { label: 'Jackets History', icon: 'pi pi-history', command: showDraftJackets },
     { label: 'Order Details', icon: 'pi pi-eye', command() { console.log('command') } },
 ])
 const selectedOrderId = ref()
 
 const { showLoadingSpinner } = inject<any>('loadingSpinner')
 
-async function showDraftOrders() {
-    ordersDialogVisible.value = true
-    await loadOldOrders()
+async function showDraftJackets() {
+    jacketsDialogVisible.value = true
+    await loadOldJackets()
 }
 
-async function loadOldOrders() {
-    const { data } = await directus.items('Orders').readByQuery({
-        limit: -1,
-    })
-    orders.length = 0
-    orders.push(...data)
+async function loadOldJackets() {
+    const cJackets = cookies.get('jackets')
+    if (cJackets) {
+        const { data } = await directus.items('Orders').readByQuery({
+            limit: -1,
+            filter: {
+                id: {
+                    _in: cJackets.ids
+                }
+            }
+        })
+        jackets.length = 0
+        jackets.push(...data)
+    }
 }
 
 function deleteConfirmation(id: string) {
@@ -71,7 +85,7 @@ function deleteConfirmation(id: string) {
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
+    }).then((result: any) => {
         if (result.isConfirmed) {
             deleteOrder(id)
         }
@@ -81,9 +95,9 @@ function deleteConfirmation(id: string) {
 async function deleteOrder(id: string) {
     try {
         showLoadingSpinner(true)
-        await directus.items('Orders').deleteOne(id)
-        const index = orders.findIndex((o: any) => o.id == id)
-        orders.splice(index, 1)
+        await directus.items('Jackets').deleteOne(id)
+        const index = jackets.findIndex((o: any) => o.id == id)
+        jackets.splice(index, 1)
         Swal.fire({
             title: 'Order Deletion',
             text: 'Your order has been successfully removed!',
@@ -106,21 +120,26 @@ async function deleteOrder(id: string) {
     }
 }
 
-async function restoreOrder(id: string) {
+async function restoreJacket(id: string) {
     Swal.fire({
-        title: 'Order Deletion',
-        text: 'We\'ll reload this page to load your order!' ,
+        title: 'Jacket Deletion',
+        text: 'We\'ll reload this page to load your jacket!' ,
         icon: 'info',
         confirmButtonText: 'Ok',
         timer: 3000,
         timerProgressBar: true
     })
-    .then(() => location.href = appUrl + "/index.php?ljd_dsgn=" + id)
+    .then(() => window.open(appUrl + "/index.php?ljd_dsgn=" + id, '_blank'))
 }
 
-async function previewOrder(id: string) {
+async function previewJacket(id: string) {
     selectedOrderId.value = id
     previewDialogVisible.value = true
+}
+
+function closePreviewDialog() {
+    sessionStorage.removeItem('readonly')
+    previewDialogVisible.value = false
 }
 </script>
 <style lang='stylus' scoped>
