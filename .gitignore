@@ -27,3 +27,4 @@ coverage
 *.sw?
 
 /src/env.ts
+/public/config.json
