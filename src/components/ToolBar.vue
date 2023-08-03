@@ -102,7 +102,7 @@ async function deleteJacket(id: string) {
         const index = jackets.findIndex((o: any) => o.id == id)
         jackets.splice(index, 1)
         Swal.fire({
-            title: 'Jacket Restoration',
+            title: 'Jacket Deletion',
             text: 'This jacket has been successfully removed!',
             icon: 'success',
             confirmButtonText: 'Ok',
@@ -111,7 +111,7 @@ async function deleteJacket(id: string) {
         })
     } catch (e) {
         Swal.fire({
-            title: 'Order Deletion',
+            title: 'Jacket Deletion',
             text: 'Something went wrong deleting this jacket, please try again!',
             icon: 'error',
             confirmButtonText: 'Ok',
@@ -125,7 +125,7 @@ async function deleteJacket(id: string) {
 
 async function restoreJacket(id: string) {
     Swal.fire({
-        title: 'Jacket Deletion',
+        title: 'Jacket Restoration',
         text: 'We\'ll reload this page to load your jacket!' ,
         icon: 'info',
         confirmButtonText: 'Ok',
