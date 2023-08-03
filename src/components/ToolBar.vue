@@ -25,8 +25,10 @@
             button.p-dialog-header-icon.p-dialog-header-close.p-link(@click='closePreviewDialog')
                 i.pi.pi-times
         iframe(
+            sandbox='allow-same-origin allow-scripts'
+            scrolling="no",
             v-if='previewDialogVisible',
-            :src='appUrl + "/index.php?readonly&ljd_dsgn=" + selectedOrderId',
+            :src='appUrl + "/index.php?preview&ljd_dsgn=" + selectedOrderId',
             :style='{ width: "85vw", height: "calc(85vh - 80px)" }'
         )
 </template>
@@ -88,20 +90,20 @@ function deleteConfirmation(id: string) {
         confirmButtonText: 'Yes, delete it!'
     }).then((result: any) => {
         if (result.isConfirmed) {
-            deleteOrder(id)
+            deleteJacket(id)
         }
     })
 }
 
-async function deleteOrder(id: string) {
+async function deleteJacket(id: string) {
     try {
         showLoadingSpinner(true)
         await directus.items('Jackets').deleteOne(id)
         const index = jackets.findIndex((o: any) => o.id == id)
         jackets.splice(index, 1)
         Swal.fire({
-            title: 'Order Deletion',
-            text: 'Your order has been successfully removed!',
+            title: 'Jacket Restoration',
+            text: 'This jacket has been successfully removed!',
             icon: 'success',
             confirmButtonText: 'Ok',
             timer: 6000,
@@ -110,7 +112,7 @@ async function deleteOrder(id: string) {
     } catch (e) {
         Swal.fire({
             title: 'Order Deletion',
-            text: 'Something went wrong deleting your order, please try again!',
+            text: 'Something went wrong deleting this jacket, please try again!',
             icon: 'error',
             confirmButtonText: 'Ok',
             timer: 6000,
@@ -139,7 +141,6 @@ async function previewJacket(id: string) {
 }
 
 function closePreviewDialog() {
-    sessionStorage.removeItem('readonly')
     previewDialogVisible.value = false
 }
 
